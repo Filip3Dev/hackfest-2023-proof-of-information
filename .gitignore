@@ -1,0 +1,14 @@
+zkp/circom/pot12_0000.ptau
+zkp/circom/pot12_0001.ptau
+zkp/circom/pot12_final.ptau
+zkp/circom/proof.json
+zkp/circom/verification_key.json
+zkp/circom/main_0000.zkey
+zkp/circom/main_0001.zkey
+zkp/circom/input.json
+zkp/circom/all_input.json
+zkp/circom/help.md
+zkp/circom/main.r1cs
+zkp/circom/main.sym
+zkp/circom/main_js
+zkp/circom/main_cpp

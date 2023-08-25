@@ -1,0 +1,31 @@
+body {
+  background-color: white;
+  margin: 0;
+  font-family: "Open Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.header-logo {
+  height: 120px;
+}
+
+.podium-icon {
+  height: 400px;
+  position: absolute;
+}
+
+.metamask {
+  height: 80px;
+  border-radius: 10px;
+}
+
+.scoring-podium {
+  height: 130px;
+  margin-top: 20px;
+}
+
+.token-logo {
+  height: 80px;
+  margin-left: 25px;
+}
