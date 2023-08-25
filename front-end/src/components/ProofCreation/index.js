@@ -7,6 +7,9 @@ import {
   Grid,
   Link,
   Paper,
+  FormControl,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { useTheme } from "@mui/material";
@@ -14,7 +17,6 @@ import { fetchData } from "../../shared/utils/database";
 import { generateProof } from "../../shared/utils/proof";
 import { getNearBalance } from "../../shared/utils/near";
 import { LoadingButton } from "@mui/lab";
-import { useSearchParams } from "react-router-dom";
 import { SERVER } from "../../shared/Constants/constants";
 import { mimc7 } from "circomlib";
 import QRCode from "qrcode.react";
@@ -22,6 +24,7 @@ import { create } from "ipfs-http-client";
 import { enqueueSnackbar } from "notistack";
 import LockPersonIcon from "@mui/icons-material/LockPerson";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
 import BigNumber from "bignumber.js";
 import { stringToHex, hexToString } from "../../shared/utils/stringhex";
 const BigInt = require("big-integer");
@@ -35,8 +38,20 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
   const [leafExisted, setLeafExisted] = useState(false);
   const [url, setUrl] = useState(null);
   const theme = useTheme();
-  const [searchParams, setSearchParams] = useSearchParams();
   const [step, setStep] = useState(0);
+  const [operator, setOperator] = useState(4);
+  const [minInfo, setMinInfo] = useState("0");
+  const [maxInfo, setMaxInfo] = useState("0");
+
+  const reset = () => {
+    setPass("");
+    setWeb2Id("");
+    setUrl(null);
+    setStep(0);
+    setOperator(4);
+    setMinInfo("0");
+    setMaxInfo("0");
+  };
 
   const projectId = "2PyRVePShrDRMUhgHdpf6zW7NSw";
   const projectSecret = "69325cd9fa06b38d50d44dcfcb5e0e56";
@@ -79,6 +94,10 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
     }
   }, [accountId]);
 
+  const handleChange = (event) => {
+    setOperator(event.target.value);
+  };
+
   const copyToClipboard = () => {
     navigator.clipboard.writeText(url).then(() => {
       alert("Copied to clipboard");
@@ -88,6 +107,42 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
   function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
+
+  const operatorParameters = () => {
+    let min = new BigNumber(minInfo)
+      .multipliedBy(1000000000000000000000000)
+      .toFixed(0);
+
+    let max = new BigNumber(maxInfo)
+      .multipliedBy(1000000000000000000000000)
+      .toFixed(0);
+
+    if (operator == 1) {
+      return {
+        min: 0,
+        max: 100000000000000000000000000000000,
+        condition: min,
+      };
+    } else if (operator == 2) {
+      return {
+        min: 0,
+        max: 100000000000000000000000000000000,
+        condition: max,
+      };
+    } else if (operator == 3) {
+      return {
+        min: min,
+        max: max,
+        condition: 0,
+      };
+    } else {
+      return {
+        min: 0,
+        max: 100000000000000000000000000000000,
+        condition: 0,
+      };
+    }
+  };
 
   const handleProvideAuthHash = async () => {
     let accountIdHash = await stringToHex(accountId);
@@ -125,24 +180,27 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
         { accountId: accountId },
         SERVER + "merkletree/info"
       );
+      console.log(new BigNumber(minInfo).dividedBy(10).toFixed(0));
       let information = await getNearBalance(accountId);
       let currentTimestamp = Math.floor(new Date().getTime() / 1000);
-      console.log(data);
+      let parameters = operatorParameters();
+
       const input = {
         accountId: "0x" + accountIdHash,
         information: information.available,
-        condition: 0,
+        condition: parameters.condition,
         web2Id: "0x" + web2IdHash,
         pass: pass,
         verifyTimestamp: currentTimestamp.toString(),
         authHash: data.auth_hash,
         root: data.root,
-        operator: 3,
-        min: 0,
-        max: 200000000000000000000000000,
+        operator: operator,
+        min: parameters.min,
+        max: parameters.max,
         direction: data.direction,
         siblings: data.siblings,
       };
+
       let proof = await generateProof(input);
       if (proof != -1) {
         const jsonText = JSON.stringify(proof, null, "\t");
@@ -150,18 +208,18 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
         setUrl("https://ipfs.io/ipfs/" + added.path);
         enqueueSnackbar("Create proof successfully!", {
           variant: "success",
-          autoHideDuration: 20000,
+          autoHideDuration: 2000,
         });
       } else {
         enqueueSnackbar("Wrong password!", {
           variant: "error",
-          autoHideDuration: 5000,
+          autoHideDuration: 2000,
         });
       }
     } catch (err) {
       enqueueSnackbar("Create proof unsuccessfully!", {
         variant: "error",
-        autoHideDuration: 5000,
+        autoHideDuration: 2000,
       });
     }
 
@@ -169,7 +227,7 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
   };
 
   return (
-    <Box mb={5} sx={{ paddingTop: "50px", backgroundColor: "white" }}>
+    <Box sx={{ paddingTop: "10px", backgroundColor: "white" }}>
       {isSignedIn ? (
         <Container>
           <Box mt={2}>
@@ -257,8 +315,18 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
                       padding: "40px",
                       borderRadius: "10px",
                       border: "8px solid #004aad",
+                      height: step == 0 ? "250px" : "500px",
+                      marginTop: step == 0 ? "100px" : "0px",
                     }}
                   >
+                    <SettingsBackupRestoreIcon
+                      sx={{
+                        float: "right",
+                        color: "#004aad",
+                        fontSize: "40px",
+                      }}
+                      onClick={() => reset()}
+                    />
                     <Typography
                       variant="body2"
                       sx={{
@@ -271,7 +339,14 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
                       Proof Of Information
                     </Typography>
                     {step == 0 ? (
-                      <Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          height: "100%",
+                        }}
+                      >
                         <Button
                           sx={{
                             backgroundColor: "#004aad",
@@ -282,7 +357,6 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
                             display: "block",
                             fontWeight: "700",
                             margin: "0 auto",
-                            marginTop: "220px",
                             fontFamily: theme.typography,
                             fontSize: "25px",
                             "&:hover": {
@@ -375,6 +449,132 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
                               label="Password"
                               variant="filled"
                             />
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginTop: "20px",
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontFamily: theme.typography.typography,
+                                  fontSize: "18px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Proof Type
+                              </Typography>
+                              <FormControl
+                                sx={{ minWidth: 120, marginLeft: "20px" }}
+                              >
+                                <Select
+                                  value={operator}
+                                  onChange={handleChange}
+                                  displayEmpty
+                                  inputProps={{ "aria-label": "Without label" }}
+                                >
+                                  <MenuItem value={1}>Greater</MenuItem>
+                                  <MenuItem value={2}>Less</MenuItem>
+                                  <MenuItem value={3}>Range</MenuItem>
+                                  <MenuItem value={4}>No Condition</MenuItem>
+                                </Select>
+                              </FormControl>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              {operator == 1 || operator == 3 ? (
+                                <TextField
+                                  sx={{
+                                    input: {
+                                      paddingLeft: "20px",
+                                      color: "black",
+                                      fontWeight: 500,
+                                      height: "25px",
+                                    },
+                                    "& .MuiOutlinedInput-root": {
+                                      "& fieldset": {
+                                        borderRadius: "10px",
+                                        fontWeight: 500,
+                                      },
+                                      "&:hover fieldset": {
+                                        borderColor: theme.colors.color3,
+                                        color: "white",
+                                      },
+                                      "&.Mui-focused fieldset": {
+                                        borderColor: "#6F7E8C",
+                                      },
+                                    },
+                                    width: "100%",
+                                    marginTop: "10px",
+                                    backgroundColor: "white",
+                                    borderRadius: "10px",
+                                    width: operator == 3 ? "48%" : "100%",
+                                  }}
+                                  InputLabelProps={{
+                                    style: {
+                                      color: "black",
+                                      fontSize: "18px",
+                                      marginBottom: "5px",
+                                    },
+                                  }}
+                                  value={minInfo}
+                                  onChange={(e) => setMinInfo(e.target.value)}
+                                  label="Min"
+                                  variant="filled"
+                                />
+                              ) : (
+                                ""
+                              )}
+                              {operator == 2 || operator == 3 ? (
+                                <TextField
+                                  sx={{
+                                    input: {
+                                      paddingLeft: "20px",
+                                      color: "black",
+                                      fontWeight: 500,
+                                      height: "25px",
+                                    },
+                                    "& .MuiOutlinedInput-root": {
+                                      "& fieldset": {
+                                        borderRadius: "10px",
+                                        fontWeight: 500,
+                                      },
+                                      "&:hover fieldset": {
+                                        borderColor: theme.colors.color3,
+                                        color: "white",
+                                      },
+                                      "&.Mui-focused fieldset": {
+                                        borderColor: "#6F7E8C",
+                                      },
+                                    },
+                                    width: "100%",
+                                    marginTop: "10px",
+                                    backgroundColor: "white",
+                                    borderRadius: "10px",
+                                    width: operator == 3 ? "48%" : "100%",
+                                  }}
+                                  InputLabelProps={{
+                                    style: {
+                                      color: "black",
+                                      fontSize: "18px",
+                                      marginBottom: "5px",
+                                    },
+                                  }}
+                                  value={maxInfo}
+                                  onChange={(e) => setMaxInfo(e.target.value)}
+                                  label="Max"
+                                  variant="filled"
+                                />
+                              ) : (
+                                ""
+                              )}
+                            </Box>
                             <LoadingButton
                               sx={{
                                 width: "100%",
@@ -478,6 +678,132 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
                               label="Password"
                               variant="filled"
                             />
+                            <Box
+                              sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                marginTop: "20px",
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontFamily: theme.typography.typography,
+                                  fontSize: "18px",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                Proof Type
+                              </Typography>
+                              <FormControl
+                                sx={{ minWidth: 120, marginLeft: "20px" }}
+                              >
+                                <Select
+                                  value={operator}
+                                  onChange={handleChange}
+                                  displayEmpty
+                                  inputProps={{ "aria-label": "Without label" }}
+                                >
+                                  <MenuItem value={1}>Greater</MenuItem>
+                                  <MenuItem value={2}>Less</MenuItem>
+                                  <MenuItem value={3}>Range</MenuItem>
+                                  <MenuItem value={4}>No Condition</MenuItem>
+                                </Select>
+                              </FormControl>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              {operator == 1 || operator == 3 ? (
+                                <TextField
+                                  sx={{
+                                    input: {
+                                      paddingLeft: "20px",
+                                      color: "black",
+                                      fontWeight: 500,
+                                      height: "25px",
+                                    },
+                                    "& .MuiOutlinedInput-root": {
+                                      "& fieldset": {
+                                        borderRadius: "10px",
+                                        fontWeight: 500,
+                                      },
+                                      "&:hover fieldset": {
+                                        borderColor: theme.colors.color3,
+                                        color: "white",
+                                      },
+                                      "&.Mui-focused fieldset": {
+                                        borderColor: "#6F7E8C",
+                                      },
+                                    },
+                                    width: "100%",
+                                    marginTop: "10px",
+                                    backgroundColor: "white",
+                                    borderRadius: "10px",
+                                    width: operator == 3 ? "48%" : "100%",
+                                  }}
+                                  InputLabelProps={{
+                                    style: {
+                                      color: "black",
+                                      fontSize: "18px",
+                                      marginBottom: "5px",
+                                    },
+                                  }}
+                                  value={minInfo}
+                                  onChange={(e) => setMinInfo(e.target.value)}
+                                  label="Min"
+                                  variant="filled"
+                                />
+                              ) : (
+                                ""
+                              )}
+                              {operator == 2 || operator == 3 ? (
+                                <TextField
+                                  sx={{
+                                    input: {
+                                      paddingLeft: "20px",
+                                      color: "black",
+                                      fontWeight: 500,
+                                      height: "25px",
+                                    },
+                                    "& .MuiOutlinedInput-root": {
+                                      "& fieldset": {
+                                        borderRadius: "10px",
+                                        fontWeight: 500,
+                                      },
+                                      "&:hover fieldset": {
+                                        borderColor: theme.colors.color3,
+                                        color: "white",
+                                      },
+                                      "&.Mui-focused fieldset": {
+                                        borderColor: "#6F7E8C",
+                                      },
+                                    },
+                                    width: "100%",
+                                    marginTop: "10px",
+                                    backgroundColor: "white",
+                                    borderRadius: "10px",
+                                    width: operator == 3 ? "48%" : "100%",
+                                  }}
+                                  InputLabelProps={{
+                                    style: {
+                                      color: "black",
+                                      fontSize: "18px",
+                                      marginBottom: "5px",
+                                    },
+                                  }}
+                                  value={maxInfo}
+                                  onChange={(e) => setMaxInfo(e.target.value)}
+                                  label="Max"
+                                  variant="filled"
+                                />
+                              ) : (
+                                ""
+                              )}
+                            </Box>
                             <LoadingButton
                               sx={{
                                 width: "100%",
@@ -513,86 +839,101 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
                       borderRadius: "10px",
                       width: "100%",
                       padding: "40px",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
                     }}
                   >
-                    <QRCode
-                      id="qrcode"
-                      value={url}
-                      size={280}
-                      level={"H"}
-                      includeMargin={true}
-                    />{" "}
+                    <Box sx={{ display: "flex", justifyContent: "end" }}>
+                      <SettingsBackupRestoreIcon
+                        sx={{
+                          float: "right",
+                          color: "white",
+                          fontSize: "40px",
+                        }}
+                        onClick={() => reset()}
+                      />
+                    </Box>
                     <Box
                       sx={{
                         display: "flex",
+                        flexDirection: "column",
                         alignItems: "center",
-                        paddingTop: "20px",
+                        justifyContent: "center",
                       }}
                     >
-                      <Typography
-                        variant="body2"
-                        textAlign={"center"}
+                      <QRCode
+                        id="qrcode"
+                        value={url}
+                        size={280}
+                        level={"H"}
+                        includeMargin={true}
+                      />{" "}
+                      <Box
                         sx={{
-                          fontFamily: theme.typography.typography,
-                          fontSize: "25px",
-                          fontWeight: "700",
-                          color: "white",
+                          display: "flex",
+                          alignItems: "center",
+                          paddingTop: "20px",
                         }}
                       >
-                        Proof IPFS url
-                      </Typography>
+                        <Typography
+                          variant="body2"
+                          textAlign={"center"}
+                          sx={{
+                            fontFamily: theme.typography.typography,
+                            fontSize: "25px",
+                            fontWeight: "700",
+                            color: "white",
+                          }}
+                        >
+                          Proof IPFS url
+                        </Typography>
 
-                      <Button
+                        <Button
+                          sx={{
+                            minWidth: 0,
+                            borderRadius: "5px",
+                            opacity: 1,
+                            height: "20px",
+                            color: "#fff",
+                            fontFamily: theme.typography.fontFamily,
+                            fontSize: "20px",
+                            fontWeight: "600",
+                            textTransform: "none",
+                            marginLeft: "5px",
+                          }}
+                          onClick={copyToClipboard}
+                        ></Button>
+                      </Box>
+                      <Link
+                        href={url}
                         sx={{
-                          minWidth: 0,
-                          borderRadius: "5px",
-                          opacity: 1,
-                          height: "20px",
-                          color: "#fff",
-                          fontFamily: theme.typography.fontFamily,
-                          fontSize: "20px",
-                          fontWeight: "600",
-                          textTransform: "none",
-                          marginLeft: "5px",
-                        }}
-                        onClick={copyToClipboard}
-                      ></Button>
-                    </Box>
-                    <Link
-                      href={url}
-                      sx={{
-                        fontFamily: theme.typography.typography,
-                        width: "100%",
-                        fontSize: "12px",
-                        fontWeight: "400",
-                        color: theme.colors.color2,
-                        textDecoration: "none",
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        textAlign={"center"}
-                        multiline
-                        sx={{
-                          display: "-webkit-box",
-                          boxOrient: "vertical",
-                          lineClamp: 2,
-                          wordBreak: "break-all",
-                          overflow: "hidden",
                           fontFamily: theme.typography.typography,
+                          width: "100%",
                           fontSize: "12px",
                           fontWeight: "400",
-                          color: "white",
+                          color: theme.colors.color2,
                           textDecoration: "none",
                         }}
                       >
-                        {url}
-                      </Typography>
-                    </Link>
+                        <Typography
+                          variant="body2"
+                          textAlign={"center"}
+                          multiline
+                          sx={{
+                            display: "-webkit-box",
+                            boxOrient: "vertical",
+                            lineClamp: 2,
+                            wordBreak: "break-all",
+                            overflow: "hidden",
+                            fontFamily: theme.typography.typography,
+                            fontSize: "12px",
+                            fontWeight: "400",
+                            color: "white",
+                            textDecoration: "none",
+                          }}
+                        >
+                          {url}
+                        </Typography>
+                      </Link>
+                    </Box>
                   </Grid>
                 )}
               </Grid>

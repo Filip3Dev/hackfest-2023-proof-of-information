@@ -20,7 +20,7 @@
     "@web3modal/react": "^2.4.3",
     "assert": "^2.0.0",
     "big-integer": "^1.6.51",
-    "bignumber.js": "^4.0.4",
+    "bignumber.js": "^9.1.1",
     "circomlib": "^0.2.3",
     "crypto-browserify": "^3.12.0",
     "firebase": "^9.22.0",

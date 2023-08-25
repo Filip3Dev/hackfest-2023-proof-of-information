@@ -6,6 +6,7 @@ import {
   convertCachedToLeaf,
   getInfo,
   checkUserLeaf,
+  verifyProof,
 } from "../controllers/merkleTreeContronller";
 
 const express = require("express");
@@ -26,7 +27,7 @@ router.post("/provideAuthHash/", async (req: Request, res: Response) => {
     var resData = await provideAuthHash(req);
     return res.status(201).json(resData);
   } catch (err) {
-    console.log("Error: POST /user/provideAuthHash/", err);
+    console.log("Error: POST /merkletree/provideAuthHash/", err);
     return res.status(404).json({ err: (err as Error).message });
   }
 });
@@ -36,7 +37,7 @@ router.post("/info/", async (req: Request, res: Response) => {
     var resData = await getInfo(req);
     return res.status(201).json(resData);
   } catch (err) {
-    console.log("Error: POST /merkletree/user/info/", err);
+    console.log("Error: POST /merkletreeinfo/", err);
     return res.status(404).json({ err: (err as Error).message });
   }
 });
@@ -46,27 +47,17 @@ router.post("/checkUserLeaf/", async (req: Request, res: Response) => {
     var resData = await checkUserLeaf(req);
     return res.status(201).json(resData);
   } catch (err) {
-    console.log("Error: POST /merkletree/user/checkUserLeaf/", err);
+    console.log("Error: POST /merkletree/checkUserLeaf/", err);
     return res.status(404).json({ err: (err as Error).message });
   }
 });
 
-router.post("/test/", async (req: Request, res: Response) => {
+router.post("/verify/", async (req: Request, res: Response) => {
   try {
-    var resData = await buildMerkleTree();
+    let resData = await verifyProof(req);
     return res.status(201).json(resData);
   } catch (err) {
-    console.log("Error: POST /merkletree/user/test/", err);
-    return res.status(404).json({ err: (err as Error).message });
-  }
-});
-
-router.post("/test2/", async (req: Request, res: Response) => {
-  try {
-    var resData = await convertCachedToLeaf();
-    return res.status(201).json(resData);
-  } catch (err) {
-    console.log("Error: POST /merkletree/user/test/", err);
+    console.log("Error: POST /merkletree/verify/", err);
     return res.status(404).json({ err: (err as Error).message });
   }
 });

@@ -1,4 +1,4 @@
-export async function hexToString(hex) {
+export function hexToString(hex) {
   let str = "";
   for (let i = 0; i < hex.length; i += 2) {
     const hexValue = hex.substr(i, 2);

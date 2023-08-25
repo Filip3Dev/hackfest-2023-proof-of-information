@@ -6,6 +6,8 @@ import { uuid } from "uuidv4";
 import * as dotenv from "dotenv";
 import UserLeaf, { IUserLeaf } from "../models/UserLeafSchema";
 import { mimc7 } from "../utils/crypto";
+const { groth16 } = require("snarkjs");
+const v_key = require("./verification_key.json");
 
 dotenv.config();
 
@@ -346,6 +348,15 @@ async function getInfo(req: Request) {
   }
 }
 
+async function verifyProof(req: Request) {
+  let data = req.body;
+  let proof = data.proof;
+  let publicSignals = data.publicSignals;
+
+  const res = await groth16.verify(v_key, publicSignals, proof);
+  return res;
+}
+
 export {
   getMerkleTreeInfo,
   provideAuthHash,
@@ -353,4 +364,5 @@ export {
   buildMerkleTree,
   getInfo,
   checkUserLeaf,
+  verifyProof,
 };
