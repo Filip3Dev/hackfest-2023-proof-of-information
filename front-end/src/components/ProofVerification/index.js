@@ -19,6 +19,7 @@ import { LoadingButton } from "@mui/lab";
 import { hexToString } from "../../shared/utils/stringhex";
 import BigNumber from "bignumber.js";
 import VerifiedIcon from "@mui/icons-material/Verified";
+import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
 import ClearIcon from "@mui/icons-material/Clear";
 
 const ProofVerification = () => {
@@ -26,6 +27,12 @@ const ProofVerification = () => {
   const [isVerified, setIsVerified] = useState(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
+
+  const reset = () => {
+    setUrl("");
+    setIsVerified(null);
+    setData(null);
+  };
 
   const handleVerifyProof = async () => {
     setLoading(true);
@@ -69,6 +76,14 @@ const ProofVerification = () => {
           border: "8px solid #004aad",
         }}
       >
+        <SettingsBackupRestoreIcon
+          sx={{
+            float: "right",
+            color: "#004aad",
+            fontSize: "40px",
+          }}
+          onClick={() => reset()}
+        />
         <Typography
           variant="body2"
           sx={{

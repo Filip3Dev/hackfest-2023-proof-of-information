@@ -21,17 +21,8 @@ const Header = ({ isSignedIn, wallet }) => {
         boxShadow: "0 3px 3px rgb(0 0 0 / 10%)",
       }}
     >
-      <Typography
-        variant="body2"
-        sx={{
-          fontFamily: theme.typography.typography,
-          fontSize: "50px",
-          fontWeight: "700",
-          color: "white",
-        }}
-      >
-        Proof-Of-Information
-      </Typography>
+      <img src="TD.png" class="header-logo" />
+
       <Connect isSignedIn={isSignedIn} wallet={wallet} />
     </Box>
   );
