@@ -17,6 +17,7 @@ import { fetchData } from "../../shared/utils/database";
 import { SERVER } from "../../shared/Constants/constants";
 import { LoadingButton } from "@mui/lab";
 import { hexToString } from "../../shared/utils/stringhex";
+import { toDayTime } from "../../shared/utils/others";
 import BigNumber from "bignumber.js";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
@@ -235,6 +236,17 @@ const ProofVerification = () => {
                         ""
                       )}
                     </TableRow>
+                    <TableRow
+                      key={"123"}
+                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    >
+                      <TableCell align="center" scope="row">
+                        Created time
+                      </TableCell>
+                      <TableCell align="center" scope="row">
+                        {toDayTime(data[7])}
+                      </TableCell>
+                    </TableRow>
                     {data[3] == "1" || data[3] == "2" ? (
                       <TableRow
                         key={"123"}
@@ -281,7 +293,7 @@ const ProofVerification = () => {
                     data[4] != "0" &&
                     data[5] != "100000000000000000000000000000000" ? (
                       <TableRow
-                        key={"123"}
+                        key={"333"}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
@@ -327,26 +339,32 @@ const ProofVerification = () => {
             </Box>
           </Box>
         ) : (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginTop: "10px",
-            }}
-          >
-            <ClearIcon sx={{ color: "red", marginRight: "10px" }} />
-            <Typography
-              variant="body2"
-              sx={{
-                fontFamily: theme.typography.typography,
-                fontSize: "18px",
-                fontWeight: "500",
-                color: "red",
-              }}
-            >
-              Your proof is not verified!
-            </Typography>
+          <Box>
+            {isVerified != null ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginTop: "10px",
+                }}
+              >
+                <ClearIcon sx={{ color: "red", marginRight: "10px" }} />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontFamily: theme.typography.typography,
+                    fontSize: "18px",
+                    fontWeight: "500",
+                    color: "red",
+                  }}
+                >
+                  Your proof is not verified!
+                </Typography>
+              </Box>
+            ) : (
+              ""
+            )}
           </Box>
         )}
       </Container>
