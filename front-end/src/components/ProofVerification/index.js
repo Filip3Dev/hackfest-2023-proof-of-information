@@ -194,7 +194,7 @@ const ProofVerification = () => {
                   </TableHead>
                   <TableBody>
                     <TableRow
-                      key={"123"}
+                      key={"1"}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell align="center" scope="row">
@@ -205,7 +205,7 @@ const ProofVerification = () => {
                       </TableCell>
                     </TableRow>
                     <TableRow
-                      key={"123"}
+                      key={"2"}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell align="center" scope="row">
@@ -237,7 +237,7 @@ const ProofVerification = () => {
                       )}
                     </TableRow>
                     <TableRow
-                      key={"123"}
+                      key={"3"}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                     >
                       <TableCell align="center" scope="row">
@@ -249,7 +249,7 @@ const ProofVerification = () => {
                     </TableRow>
                     {data[3] == "1" || data[3] == "2" ? (
                       <TableRow
-                        key={"123"}
+                        key={"4"}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
@@ -271,7 +271,7 @@ const ProofVerification = () => {
                     data[4] == "0" &&
                     data[5] == "100000000000000000000000000000000" ? (
                       <TableRow
-                        key={"123"}
+                        key={"5"}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
@@ -293,7 +293,7 @@ const ProofVerification = () => {
                     data[4] != "0" &&
                     data[5] != "100000000000000000000000000000000" ? (
                       <TableRow
-                        key={"333"}
+                        key={"6"}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
@@ -315,7 +315,7 @@ const ProofVerification = () => {
                     data[4] != "0" &&
                     data[5] != "100000000000000000000000000000000" ? (
                       <TableRow
-                        key={"123"}
+                        key={"7"}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
                         }}
