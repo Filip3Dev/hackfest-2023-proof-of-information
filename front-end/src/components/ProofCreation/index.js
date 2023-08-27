@@ -9,6 +9,7 @@ import {
   Paper,
   FormControl,
   MenuItem,
+  IconButton,
   Select,
 } from "@mui/material";
 import React, { useState, useEffect } from "react";
@@ -26,6 +27,8 @@ import LockPersonIcon from "@mui/icons-material/LockPerson";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SettingsBackupRestoreIcon from "@mui/icons-material/SettingsBackupRestore";
 import BigNumber from "bignumber.js";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { stringToHex, hexToString } from "../../shared/utils/stringhex";
 const BigInt = require("big-integer");
 
@@ -34,6 +37,7 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
   const [pass, setPass] = useState("");
   const [web2Id, setWeb2Id] = useState("");
   const [balance, setBalance] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [leafExisted, setLeafExisted] = useState(false);
   const [url, setUrl] = useState(null);
@@ -96,6 +100,10 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
 
   const handleChange = (event) => {
     setOperator(event.target.value);
+  };
+
+  const handleToggleShow = () => {
+    setShowPassword((prev) => !prev);
   };
 
   const copyToClipboard = () => {
@@ -444,6 +452,22 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
                                   marginBottom: "5px",
                                 },
                               }}
+                              InputProps={{
+                                endAdornment: (
+                                  <IconButton onClick={handleToggleShow}>
+                                    {showPassword ? (
+                                      <VisibilityOffIcon
+                                        sx={{ color: "#97A8BC" }}
+                                      />
+                                    ) : (
+                                      <VisibilityIcon
+                                        sx={{ color: "#97A8BC" }}
+                                      />
+                                    )}
+                                  </IconButton>
+                                ),
+                              }}
+                              type={showPassword ? "text" : "password"}
                               value={pass}
                               onChange={(e) => setPass(e.target.value)}
                               label="Password"
@@ -673,6 +697,22 @@ const ProofCreation = ({ isSignedIn, wallet }) => {
                               InputLabelProps={{
                                 style: { color: "black", fontSize: "18px" },
                               }}
+                              InputProps={{
+                                endAdornment: (
+                                  <IconButton onClick={handleToggleShow}>
+                                    {showPassword ? (
+                                      <VisibilityOffIcon
+                                        sx={{ color: "#97A8BC" }}
+                                      />
+                                    ) : (
+                                      <VisibilityIcon
+                                        sx={{ color: "#97A8BC" }}
+                                      />
+                                    )}
+                                  </IconButton>
+                                ),
+                              }}
+                              type={showPassword ? "text" : "password"}
                               value={pass}
                               onChange={(e) => setPass(e.target.value)}
                               label="Password"
